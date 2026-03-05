@@ -49,7 +49,7 @@ export async function generateLLMResponse(
     body: JSON.stringify({
       model,
       messages,
-      max_tokens: 1024,
+      max_tokens: 52000,
       temperature: 0.7,
     }),
   });
