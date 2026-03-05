@@ -2,39 +2,40 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { ChatBubbleIcon } from "@/components/ui/icons";
+import { ChannelSkeleton } from "@/components/ui/skeletons";
 import type { ChannelSummary } from "@/models";
 
 interface ChannelListProps {
   channels: ChannelSummary[];
   selectedUserId: string | null;
   onSelect: (userId: string) => void;
+  loading?: boolean;
 }
 
-export function ChannelList({ channels, selectedUserId, onSelect }: ChannelListProps) {
+export function ChannelList({ channels, selectedUserId, onSelect, loading }: ChannelListProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0 px-4 py-3 border-b border-border">
         <h2 className="text-sm font-semibold text-foreground">แชทผู้ใช้งาน</h2>
-        <p className="text-xs text-muted mt-0.5">{channels.length} ช่องแชท</p>
+        {loading ? (
+          <div className="h-3 w-16 skeleton mt-1" />
+        ) : (
+          <p className="text-xs text-muted mt-0.5">{channels.length} ช่องแชท</p>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {channels.length === 0 ? (
+        {loading ? (
+          <div>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ChannelSkeleton key={i} />
+            ))}
+          </div>
+        ) : channels.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-4 text-center">
             <div className="w-12 h-12 rounded-full bg-surface-alt flex items-center justify-center mb-3">
-              <svg
-                className="w-6 h-6 text-muted-light"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
-                />
-              </svg>
+              <ChatBubbleIcon className="w-6 h-6 text-muted-light" />
             </div>
             <p className="text-sm text-muted">ยังไม่มีแชท</p>
             <p className="text-xs text-muted-light mt-1">ข้อความจากผู้ใช้จะแสดงที่นี่</p>

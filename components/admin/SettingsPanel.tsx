@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { CloseIcon } from "@/components/ui/icons";
 import type { AdminSettings } from "@/models";
 
 interface SettingsPanelProps {
@@ -57,15 +58,7 @@ export function SettingsPanel({ settings, onUpdate, onClose }: SettingsPanelProp
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-alt transition-colors"
           >
-            <svg
-              className="w-5 h-5 text-muted"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-5 h-5 text-muted" />
           </button>
         </div>
 

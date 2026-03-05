@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatInput } from "@/components/ui/ChatInput";
+import { MessageSkeleton } from "@/components/ui/skeletons";
 import type { ConversationMessage } from "@/models";
 
 interface ChatPanelProps {
@@ -12,6 +13,7 @@ interface ChatPanelProps {
   pictureUrl?: string;
   messages: ConversationMessage[];
   onSendReply: (userId: string, message: string) => Promise<void>;
+  loading?: boolean;
 }
 
 export function ChatPanel({
@@ -20,6 +22,7 @@ export function ChatPanel({
   pictureUrl,
   messages,
   onSendReply,
+  loading,
 }: ChatPanelProps) {
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -62,11 +65,21 @@ export function ChatPanel({
       </header>
 
       <div className="flex-1 overflow-y-auto bg-surface-alt px-4 py-4">
-        <div className="space-y-3">
-          {messages.map((msg) => (
-            <MessageBubble key={msg.id} message={msg} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="space-y-3">
+            <MessageSkeleton align="left" />
+            <MessageSkeleton align="right" />
+            <MessageSkeleton align="left" />
+            <MessageSkeleton align="right" />
+            <MessageSkeleton align="left" />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {messages.map((msg) => (
+              <MessageBubble key={msg.id} message={msg} />
+            ))}
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
