@@ -45,7 +45,13 @@ export default function AdminDashboard() {
     onNewMessage: (data) => {
       setChannels((prev) => {
         const idx = prev.findIndex((c) => c.userId === data.userId);
-        if (idx === -1) return prev;
+        if (idx === -1) {
+          fetch("/api/channels")
+            .then((r) => r.json())
+            .then(setChannels)
+            .catch(console.error);
+          return prev;
+        }
         const updated = [...prev];
         updated[idx] = {
           ...updated[idx],
@@ -78,7 +84,7 @@ export default function AdminDashboard() {
             lastMessage: data.lastMessage,
             lastMessageAt: data.lastMessageAt,
             unreadCount: data.unreadCount,
-            messageCount: 1,
+            messageCount: data.messageCount ?? 1,
           },
           ...prev,
         ];
@@ -86,6 +92,16 @@ export default function AdminDashboard() {
     },
     onSettingsUpdate: (data) => {
       setSettings((prev) => ({ ...prev, ...data }));
+    },
+    onConnected: () => {
+      fetch("/api/channels")
+        .then((r) => r.json())
+        .then(setChannels)
+        .catch(console.error);
+      fetch("/api/settings")
+        .then((r) => r.json())
+        .then(setSettings)
+        .catch(console.error);
     },
   });
 
@@ -111,6 +127,25 @@ export default function AdminDashboard() {
       body: JSON.stringify({ message }),
     });
     if (!res.ok) throw new Error(API_ERRORS.FAILED_TO_SEND_REPLY);
+    const data = await res.json();
+    if (data.message) {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === data.message.id)) return prev;
+        return [...prev, data.message as ConversationMessage];
+      });
+      setChannels((prev) => {
+        const idx = prev.findIndex((c) => c.userId === userId);
+        if (idx === -1) return prev;
+        const updated = [...prev];
+        updated[idx] = {
+          ...updated[idx],
+          lastMessage: data.message.text,
+          lastMessageAt: data.message.timestamp,
+          messageCount: updated[idx].messageCount + 1,
+        };
+        return updated.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+      });
+    }
   }, []);
 
   const handleUpdateSettings = useCallback(async (updates: Partial<AdminSettings>) => {

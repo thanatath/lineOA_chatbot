@@ -15,6 +15,8 @@ export interface SSEHandlers {
     lastMessageAt: number;
     unreadCount: number;
     lastMessage: string;
+    messageCount?: number;
   }) => void;
   onSettingsUpdate?: (data: { autoResponseEnabled: boolean; systemPrompt: string }) => void;
+  onConnected?: (data: { version: number }) => void;
 }

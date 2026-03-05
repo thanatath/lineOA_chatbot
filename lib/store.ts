@@ -25,6 +25,7 @@ class Store {
     message: ConversationMessage
   ): UserChannel {
     let channel = this.channels.get(userId);
+    let isNewChannel = false;
 
     if (!channel) {
       channel = {
@@ -36,7 +37,7 @@ class Store {
         unreadCount: 0,
       };
       this.channels.set(userId, channel);
-      this.broadcast("new_channel", JSON.stringify(this.serializeChannel(channel)));
+      isNewChannel = true;
     }
 
     channel.messages.push(message);
@@ -46,6 +47,11 @@ class Store {
     }
 
     this.updateVersion++;
+
+    if (isNewChannel) {
+      this.broadcast("new_channel", JSON.stringify(this.serializeChannel(channel)));
+    }
+
     this.broadcast(
       "new_message",
       JSON.stringify({
@@ -104,6 +110,7 @@ class Store {
       lastMessageAt: channel.lastMessageAt,
       unreadCount: channel.unreadCount,
       lastMessage: channel.messages[channel.messages.length - 1]?.text || "",
+      messageCount: channel.messages.length,
     };
   }
 }

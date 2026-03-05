@@ -49,6 +49,15 @@ async function processEvents(events: WebhookEvent[]) {
           text: BOT_MESSAGES.THINKING,
         });
 
+        const thinkingMsg: ConversationMessage = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          text: BOT_MESSAGES.THINKING,
+          sender: "bot",
+          timestamp: Date.now(),
+        };
+
+        store.addMessage(userId, profile.displayName, profile.pictureUrl, thinkingMsg);
+
         try {
           const channel = store.getChannel(userId);
           const history = channel?.messages || [userMsg];

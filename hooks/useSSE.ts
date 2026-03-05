@@ -42,6 +42,15 @@ export function useSSE(handlers: SSEHandlers) {
         }
       });
 
+      es.addEventListener("connected", (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          handlersRef.current.onConnected?.(data);
+        } catch {
+          /* ignore parse errors */
+        }
+      });
+
       es.onerror = () => {
         es.close();
         reconnectTimeoutRef.current = setTimeout(() => {
