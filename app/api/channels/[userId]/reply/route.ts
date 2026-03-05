@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client } from "@line/bot-sdk";
 import { store } from "@/lib/store";
+import { API_ERRORS } from "@/constants/messages";
 import type { ConversationMessage } from "@/models";
 
 const client = new Client({
@@ -14,12 +15,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     const { message } = body as { message: string };
 
     if (!message?.trim()) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+      return NextResponse.json({ error: API_ERRORS.MESSAGE_REQUIRED }, { status: 400 });
     }
 
     const channel = store.getChannel(userId);
     if (!channel) {
-      return NextResponse.json({ error: "Channel not found" }, { status: 404 });
+      return NextResponse.json({ error: API_ERRORS.CHANNEL_NOT_FOUND }, { status: 404 });
     }
 
     await client.pushMessage(userId, {
@@ -39,6 +40,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
     return NextResponse.json({ success: true, message: botMsg });
   } catch (error) {
     console.error("Reply error:", error);
-    return NextResponse.json({ error: "Failed to send reply" }, { status: 500 });
+    return NextResponse.json({ error: API_ERRORS.FAILED_TO_SEND_REPLY }, { status: 500 });
   }
 }

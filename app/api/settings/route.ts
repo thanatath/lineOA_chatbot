@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
+import { API_ERRORS } from "@/constants/messages";
 import type { AdminSettings } from "@/models";
 
 export async function GET() {
@@ -23,6 +24,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json(settings);
   } catch (error) {
     console.error("Settings error:", error);
-    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+    return NextResponse.json({ error: API_ERRORS.FAILED_TO_UPDATE_SETTINGS }, { status: 500 });
   }
 }

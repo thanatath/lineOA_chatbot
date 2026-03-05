@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client } from "@line/bot-sdk";
+import { API_ERRORS } from "@/constants/messages";
 import type { BroadcastRequest, BroadcastResponse } from "@/models";
 
 const client = new Client({
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     // Validate message
     if (!message || message.trim() === "") {
       return NextResponse.json(
-        { success: false, error: "Message is required" } as BroadcastResponse,
+        { success: false, error: API_ERRORS.MESSAGE_REQUIRED } as BroadcastResponse,
         { status: 400 }
       );
     }
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     // Validate LINE credentials
     if (!process.env.LINE_CHANNEL_ACCESS_TOKEN) {
       return NextResponse.json(
-        { success: false, error: "LINE Channel Access Token not configured" } as BroadcastResponse,
+        { success: false, error: API_ERRORS.LINE_TOKEN_NOT_CONFIGURED } as BroadcastResponse,
         { status: 500 }
       );
     }
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     if (err.statusCode === 401) {
       return NextResponse.json(
-        { success: false, error: "Invalid LINE credentials" } as BroadcastResponse,
+        { success: false, error: API_ERRORS.INVALID_LINE_CREDENTIALS } as BroadcastResponse,
         { status: 401 }
       );
     }
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "Rate limit exceeded. Please try again later.",
+          error: API_ERRORS.RATE_LIMIT_EXCEEDED,
         } as BroadcastResponse,
         { status: 429 }
       );
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: err.message || "Failed to broadcast message",
+        error: err.message || API_ERRORS.BROADCAST_FAILED,
       } as BroadcastResponse,
       { status: 500 }
     );

@@ -1,4 +1,5 @@
 import type { ConversationMessage } from "@/models";
+import { BOT_MESSAGES, API_ERRORS } from "@/constants/messages";
 import { store } from "./store";
 
 export async function generateLLMResponse(
@@ -11,7 +12,7 @@ export async function generateLLMResponse(
   const model = process.env.LLM_MODEL;
 
   if (!host || !model) {
-    throw new Error("LLM configuration incomplete: missing host or model");
+    throw new Error(API_ERRORS.LLM_CONFIG_INCOMPLETE);
   }
 
   const messages = [
@@ -59,5 +60,5 @@ export async function generateLLMResponse(
   }
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || "ขออภัย ไม่สามารถสร้างคำตอบได้";
+  return data.choices?.[0]?.message?.content?.trim() || BOT_MESSAGES.LLM_FALLBACK;
 }

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
+import { API_ERRORS } from "@/constants/messages";
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params;
   const channel = store.getChannel(userId);
 
   if (!channel) {
-    return NextResponse.json({ error: "Channel not found" }, { status: 404 });
+    return NextResponse.json({ error: API_ERRORS.CHANNEL_NOT_FOUND }, { status: 404 });
   }
 
   store.markRead(userId);

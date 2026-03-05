@@ -7,6 +7,7 @@ import { BroadcastPanel } from "@/components/admin/BroadcastPanel";
 import { SettingsPanel } from "@/components/admin/SettingsPanel";
 import { useSSE } from "@/hooks/useSSE";
 import { cn } from "@/lib/utils";
+import { API_ERRORS } from "@/constants/messages";
 import type { AdminSettings, ConversationMessage, ChannelSummary } from "@/models";
 
 export default function AdminDashboard() {
@@ -109,7 +110,7 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     });
-    if (!res.ok) throw new Error("Failed to send reply");
+    if (!res.ok) throw new Error(API_ERRORS.FAILED_TO_SEND_REPLY);
   }, []);
 
   const handleUpdateSettings = useCallback(async (updates: Partial<AdminSettings>) => {
@@ -118,7 +119,7 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    if (!res.ok) throw new Error("Failed to update settings");
+    if (!res.ok) throw new Error(API_ERRORS.FAILED_TO_UPDATE_SETTINGS);
     const data = await res.json();
     setSettings(data);
   }, []);

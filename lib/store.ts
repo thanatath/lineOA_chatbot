@@ -1,13 +1,11 @@
 import type { UserChannel, ConversationMessage, AdminSettings } from "@/models";
-
-const DEFAULT_SYSTEM_PROMPT =
-  "คุณคือ TIFA AI เพื่อนช่วยคุยสำหรับผู้ใช้งานและคอยตอบคำถามแก้เหงาเชิงสร้างสรรค์";
+import { BOT_MESSAGES } from "@/constants/messages";
 
 class Store {
   private channels: Map<string, UserChannel> = new Map();
   private settings: AdminSettings = {
     autoResponseEnabled: true,
-    systemPrompt: DEFAULT_SYSTEM_PROMPT,
+    systemPrompt: BOT_MESSAGES.DEFAULT_SYSTEM_PROMPT,
   };
   private sseClients: Set<(event: string, data: string) => void> = new Set();
   private updateVersion = 0;

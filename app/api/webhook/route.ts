@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { Client, WebhookEvent, TextMessage, MessageEvent } from "@line/bot-sdk";
 import { store } from "@/lib/store";
 import { generateLLMResponse } from "@/lib/llm";
+import { BOT_MESSAGES, API_ERRORS } from "@/constants/messages";
 import type { ConversationMessage } from "@/models";
 
 const client = new Client({
@@ -45,7 +46,7 @@ async function processEvents(events: WebhookEvent[]) {
 
         await client.replyMessage(event.replyToken, {
           type: "text",
-          text: "ขอน้อง TIFA คิดก่อนนะคะ รอซักประเดี๋ยวเดียวค่ะ",
+          text: BOT_MESSAGES.THINKING,
         });
 
         try {
@@ -66,7 +67,7 @@ async function processEvents(events: WebhookEvent[]) {
         } catch (llmError) {
           console.error("LLM response error:", llmError);
 
-          const fallbackText = "ขออภัยค่ะ ระบบขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้งนะคะ";
+          const fallbackText = BOT_MESSAGES.ERROR_FALLBACK;
           await client.pushMessage(userId, { type: "text", text: fallbackText });
 
           const errorMsg: ConversationMessage = {
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     const signature = req.headers.get("x-line-signature");
 
     if (!signature) {
-      return NextResponse.json({ error: "No signature" }, { status: 401 });
+      return NextResponse.json({ error: API_ERRORS.NO_SIGNATURE }, { status: 401 });
     }
 
     const events: WebhookEvent[] = JSON.parse(body).events;
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: API_ERRORS.INTERNAL_SERVER_ERROR }, { status: 500 });
   }
 }
 
