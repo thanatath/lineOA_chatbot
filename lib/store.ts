@@ -1,52 +1,135 @@
 import type { UserChannel, ConversationMessage, AdminSettings } from "@/models";
 import { BOT_MESSAGES } from "@/constants/messages";
+import { getDb, ensureSchema } from "./db";
 
 class Store {
-  private channels: Map<string, UserChannel> = new Map();
-  private settings: AdminSettings = {
-    autoResponseEnabled: true,
-    systemPrompt: BOT_MESSAGES.DEFAULT_SYSTEM_PROMPT,
-  };
   private sseClients: Set<(event: string, data: string) => void> = new Set();
   private updateVersion = 0;
 
-  getChannels(): UserChannel[] {
-    return Array.from(this.channels.values()).sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+  private async db() {
+    await ensureSchema();
+    return getDb();
   }
 
-  getChannel(userId: string): UserChannel | undefined {
-    return this.channels.get(userId);
+  async getChannels(): Promise<UserChannel[]> {
+    const sql = await this.db();
+
+    const rows = await sql`
+      SELECT c.user_id, c.display_name, c.picture_url, c.last_message_at, c.unread_count
+      FROM channels c
+      ORDER BY c.last_message_at DESC
+    `;
+
+    const channels: UserChannel[] = [];
+    for (const row of rows) {
+      const messages = await sql`
+        SELECT id, text, sender, "timestamp"
+        FROM messages
+        WHERE channel_user_id = ${row.user_id}
+        ORDER BY "timestamp" ASC
+      `;
+
+      channels.push({
+        userId: row.user_id,
+        displayName: row.display_name,
+        pictureUrl: row.picture_url || undefined,
+        messages: messages.map((m) => ({
+          id: m.id,
+          text: m.text,
+          sender: m.sender as "user" | "bot",
+          timestamp: Number(m.timestamp),
+        })),
+        lastMessageAt: Number(row.last_message_at),
+        unreadCount: row.unread_count,
+      });
+    }
+
+    return channels;
   }
 
-  addMessage(
+  async getChannel(userId: string): Promise<UserChannel | undefined> {
+    const sql = await this.db();
+
+    const rows = await sql`
+      SELECT user_id, display_name, picture_url, last_message_at, unread_count
+      FROM channels
+      WHERE user_id = ${userId}
+    `;
+
+    if (rows.length === 0) return undefined;
+
+    const row = rows[0];
+    const messages = await sql`
+      SELECT id, text, sender, "timestamp"
+      FROM messages
+      WHERE channel_user_id = ${userId}
+      ORDER BY "timestamp" ASC
+    `;
+
+    return {
+      userId: row.user_id,
+      displayName: row.display_name,
+      pictureUrl: row.picture_url || undefined,
+      messages: messages.map((m) => ({
+        id: m.id,
+        text: m.text,
+        sender: m.sender as "user" | "bot",
+        timestamp: Number(m.timestamp),
+      })),
+      lastMessageAt: Number(row.last_message_at),
+      unreadCount: row.unread_count,
+    };
+  }
+
+  async addMessage(
     userId: string,
     displayName: string,
     pictureUrl: string | undefined,
     message: ConversationMessage
-  ): UserChannel {
-    let channel = this.channels.get(userId);
+  ): Promise<UserChannel> {
+    const sql = await this.db();
+
+    const existing = await sql`
+      SELECT user_id FROM channels WHERE user_id = ${userId}
+    `;
+
     let isNewChannel = false;
 
-    if (!channel) {
-      channel = {
-        userId,
-        displayName,
-        pictureUrl,
-        messages: [],
-        lastMessageAt: message.timestamp,
-        unreadCount: 0,
-      };
-      this.channels.set(userId, channel);
+    if (existing.length === 0) {
+      await sql`
+        INSERT INTO channels (user_id, display_name, picture_url, last_message_at, unread_count)
+        VALUES (${userId}, ${displayName}, ${pictureUrl ?? null}, ${message.timestamp}, 0)
+      `;
       isNewChannel = true;
     }
 
-    channel.messages.push(message);
-    channel.lastMessageAt = message.timestamp;
+    await sql`
+      INSERT INTO messages (id, channel_user_id, text, sender, "timestamp")
+      VALUES (${message.id}, ${userId}, ${message.text}, ${message.sender}, ${message.timestamp})
+    `;
+
     if (message.sender === "user") {
-      channel.unreadCount++;
+      await sql`
+        UPDATE channels
+        SET last_message_at = ${message.timestamp},
+            unread_count = unread_count + 1,
+            display_name = ${displayName},
+            picture_url = ${pictureUrl ?? null}
+        WHERE user_id = ${userId}
+      `;
+    } else {
+      await sql`
+        UPDATE channels
+        SET last_message_at = ${message.timestamp},
+            display_name = ${displayName},
+            picture_url = ${pictureUrl ?? null}
+        WHERE user_id = ${userId}
+      `;
     }
 
     this.updateVersion++;
+
+    const channel = (await this.getChannel(userId))!;
 
     if (isNewChannel) {
       this.broadcast("new_channel", JSON.stringify(this.serializeChannel(channel)));
@@ -64,21 +147,46 @@ class Store {
     return channel;
   }
 
-  markRead(userId: string): void {
-    const channel = this.channels.get(userId);
-    if (channel) {
-      channel.unreadCount = 0;
+  async markRead(userId: string): Promise<void> {
+    const sql = await this.db();
+    await sql`
+      UPDATE channels SET unread_count = 0 WHERE user_id = ${userId}
+    `;
+  }
+
+  async getSettings(): Promise<AdminSettings> {
+    const sql = await this.db();
+    const rows = await sql`
+      SELECT auto_response_enabled, system_prompt FROM settings WHERE id = 1
+    `;
+
+    if (rows.length === 0) {
+      return {
+        autoResponseEnabled: true,
+        systemPrompt: BOT_MESSAGES.DEFAULT_SYSTEM_PROMPT,
+      };
     }
+
+    return {
+      autoResponseEnabled: rows[0].auto_response_enabled,
+      systemPrompt: rows[0].system_prompt || BOT_MESSAGES.DEFAULT_SYSTEM_PROMPT,
+    };
   }
 
-  getSettings(): AdminSettings {
-    return { ...this.settings };
-  }
+  async updateSettings(updates: Partial<AdminSettings>): Promise<AdminSettings> {
+    const sql = await this.db();
+    const current = await this.getSettings();
+    const merged = { ...current, ...updates };
 
-  updateSettings(updates: Partial<AdminSettings>): AdminSettings {
-    this.settings = { ...this.settings, ...updates };
-    this.broadcast("settings_update", JSON.stringify(this.settings));
-    return { ...this.settings };
+    await sql`
+      UPDATE settings
+      SET auto_response_enabled = ${merged.autoResponseEnabled},
+          system_prompt = ${merged.systemPrompt}
+      WHERE id = 1
+    `;
+
+    this.broadcast("settings_update", JSON.stringify(merged));
+    return merged;
   }
 
   getUpdateVersion(): number {

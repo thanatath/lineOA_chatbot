@@ -39,9 +39,9 @@ async function processEvents(events: WebhookEvent[]) {
           timestamp: Date.now(),
         };
 
-        store.addMessage(userId, profile.displayName, profile.pictureUrl, userMsg);
+        await store.addMessage(userId, profile.displayName, profile.pictureUrl, userMsg);
 
-        const settings = store.getSettings();
+        const settings = await store.getSettings();
         if (!settings.autoResponseEnabled) return;
 
         await client.replyMessage(event.replyToken, {
@@ -56,10 +56,10 @@ async function processEvents(events: WebhookEvent[]) {
           timestamp: Date.now(),
         };
 
-        store.addMessage(userId, profile.displayName, profile.pictureUrl, thinkingMsg);
+        await store.addMessage(userId, profile.displayName, profile.pictureUrl, thinkingMsg);
 
         try {
-          const channel = store.getChannel(userId);
+          const channel = await store.getChannel(userId);
           const history = channel?.messages || [userMsg];
           const replyText = await generateLLMResponse(history);
 
@@ -72,7 +72,7 @@ async function processEvents(events: WebhookEvent[]) {
             timestamp: Date.now(),
           };
 
-          store.addMessage(userId, profile.displayName, profile.pictureUrl, botMsg);
+          await store.addMessage(userId, profile.displayName, profile.pictureUrl, botMsg);
         } catch (llmError) {
           console.error("LLM response error:", llmError);
 
@@ -86,7 +86,7 @@ async function processEvents(events: WebhookEvent[]) {
             timestamp: Date.now(),
           };
 
-          store.addMessage(userId, profile.displayName, profile.pictureUrl, errorMsg);
+          await store.addMessage(userId, profile.displayName, profile.pictureUrl, errorMsg);
         }
       })
     );

@@ -5,7 +5,7 @@ import { store } from "./store";
 export async function generateLLMResponse(
   conversationHistory: ConversationMessage[]
 ): Promise<string> {
-  const settings = store.getSettings();
+  const settings = await store.getSettings();
 
   const host = process.env.LLM_API_HOST;
   const token = process.env.LLM_API_TOKEN;

@@ -4,7 +4,7 @@ import { API_ERRORS } from "@/constants/messages";
 import type { AdminSettings } from "@/models";
 
 export async function GET() {
-  return NextResponse.json(store.getSettings());
+  return NextResponse.json(await store.getSettings());
 }
 
 export async function PUT(req: NextRequest) {
@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    const settings = store.updateSettings(updates);
+    const settings = await store.updateSettings(updates);
     return NextResponse.json(settings);
   } catch (error) {
     console.error("Settings error:", error);

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { store } from "@/lib/store";
 
 export async function GET() {
-  const channels = store.getChannels();
+  const channels = await store.getChannels();
 
   const summaries = channels.map((ch) => ({
     userId: ch.userId,

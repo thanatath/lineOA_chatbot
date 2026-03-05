@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
       return NextResponse.json({ error: API_ERRORS.MESSAGE_REQUIRED }, { status: 400 });
     }
 
-    const channel = store.getChannel(userId);
+    const channel = await store.getChannel(userId);
     if (!channel) {
       return NextResponse.json({ error: API_ERRORS.CHANNEL_NOT_FOUND }, { status: 404 });
     }
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ use
       timestamp: Date.now(),
     };
 
-    store.addMessage(userId, channel.displayName, channel.pictureUrl, botMsg);
+    await store.addMessage(userId, channel.displayName, channel.pictureUrl, botMsg);
 
     return NextResponse.json({ success: true, message: botMsg });
   } catch (error) {
