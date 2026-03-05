@@ -11,7 +11,7 @@ export default function Home() {
   const [messages, setMessages] = useState<ChatMessageType[]>([
     {
       id: "1",
-      text: "📢 LINE Broadcast System Ready!\n\nType your message and press Enter to broadcast to ALL followers of your LINE Official Account.\n\nMake sure you've configured your LINE credentials in .env.local",
+      text: "LINE Broadcast System is ready.\n\nType a message and press Enter to broadcast to all followers of your LINE Official Account.",
       sender: "bot",
       timestamp: new Date(),
       status: "sent",
@@ -30,29 +30,22 @@ export default function Home() {
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      // Call broadcast API to send message to all LINE followers
       const response = await fetch("/api/broadcast", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Update message status to sent
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === userMessage.id ? { ...msg, status: "sent" } : msg
-          )
+          prev.map((msg) => (msg.id === userMessage.id ? { ...msg, status: "sent" } : msg))
         );
 
-        // Add confirmation message
         const confirmMessage: ChatMessageType = {
           id: (Date.now() + 1).toString(),
-          text: `✅ Broadcast sent successfully to all LINE followers!\n\nMessage: "${text}"`,
+          text: `Broadcast sent successfully.\n\n"${text}"`,
           sender: "bot",
           timestamp: new Date(),
           status: "sent",
@@ -60,17 +53,13 @@ export default function Home() {
 
         setMessages((prev) => [...prev, confirmMessage]);
       } else {
-        // Update message status to error
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === userMessage.id ? { ...msg, status: "error" } : msg
-          )
+          prev.map((msg) => (msg.id === userMessage.id ? { ...msg, status: "error" } : msg))
         );
 
-        // Add error message
         const errorMessage: ChatMessageType = {
           id: (Date.now() + 1).toString(),
-          text: `❌ Failed to broadcast message: ${data.error || "Unknown error"}`,
+          text: `Failed to broadcast: ${data.error || "Unknown error"}`,
           sender: "bot",
           timestamp: new Date(),
           status: "sent",
@@ -81,17 +70,13 @@ export default function Home() {
     } catch (error) {
       console.error("Broadcast error:", error);
 
-      // Update message status to error
       setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === userMessage.id ? { ...msg, status: "error" } : msg
-        )
+        prev.map((msg) => (msg.id === userMessage.id ? { ...msg, status: "error" } : msg))
       );
 
-      // Add error message
       const errorMessage: ChatMessageType = {
         id: (Date.now() + 1).toString(),
-        text: "❌ Network error. Please check your connection and try again.",
+        text: "Network error. Please check your connection and try again.",
         sender: "bot",
         timestamp: new Date(),
         status: "sent",
@@ -102,20 +87,18 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      <ChatHeader
-        title="LINE Broadcast System"
-        subtitle="Send messages to all followers"
-        online={true}
-      />
+    <div className="h-screen w-screen flex items-center justify-center bg-background p-6">
+      <div className="w-full max-w-lg h-full max-h-[700px] flex flex-col rounded-2xl bg-surface overflow-hidden shadow-card">
+        <ChatHeader title="LINE Broadcast" subtitle="Send to all followers" online={true} />
 
-      <ChatContainer>
-        {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-      </ChatContainer>
+        <ChatContainer>
+          {messages.map((message) => (
+            <ChatMessage key={message.id} message={message} />
+          ))}
+        </ChatContainer>
 
-      <ChatInput onSend={handleSendMessage} placeholder="Type message to broadcast to all followers..." />
+        <ChatInput onSend={handleSendMessage} placeholder="Write a broadcast message..." />
+      </div>
     </div>
   );
 }

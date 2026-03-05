@@ -40,36 +40,41 @@ export async function POST(req: NextRequest) {
       success: true,
       messageId: Date.now().toString(),
     } as BroadcastResponse);
-
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Broadcast error:", error);
-    
-    // Handle specific LINE API errors
-    if (error.statusCode === 401) {
+
+    const err = error as { statusCode?: number; message?: string };
+
+    if (err.statusCode === 401) {
       return NextResponse.json(
         { success: false, error: "Invalid LINE credentials" } as BroadcastResponse,
         { status: 401 }
       );
     }
 
-    if (error.statusCode === 429) {
+    if (err.statusCode === 429) {
       return NextResponse.json(
-        { success: false, error: "Rate limit exceeded. Please try again later." } as BroadcastResponse,
+        {
+          success: false,
+          error: "Rate limit exceeded. Please try again later.",
+        } as BroadcastResponse,
         { status: 429 }
       );
     }
 
     return NextResponse.json(
-      { success: false, error: error.message || "Failed to broadcast message" } as BroadcastResponse,
+      {
+        success: false,
+        error: err.message || "Failed to broadcast message",
+      } as BroadcastResponse,
       { status: 500 }
     );
   }
 }
 
 export async function GET() {
-  return NextResponse.json({ 
+  return NextResponse.json({
     message: "LINE Broadcast API endpoint",
-    usage: "POST with { message: 'your message' }"
+    usage: "POST with { message: 'your message' }",
   });
 }
-

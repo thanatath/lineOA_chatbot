@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, KeyboardEvent } from "react";
+import { useState, FormEvent, KeyboardEvent, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -15,6 +15,14 @@ export function ChatInput({
   placeholder = "Type a message...",
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }, [message]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -31,14 +39,14 @@ export function ChatInput({
     }
   };
 
+  const canSend = message.trim().length > 0 && !disabled;
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-t border-gray-200 bg-white p-4"
-    >
-      <div className="flex items-end gap-2">
-        <div className="flex-1 relative">
+    <div className="flex-shrink-0 bg-surface border-t border-border px-4 py-3">
+      <form onSubmit={handleSubmit} className="flex items-end gap-2">
+        <div className="flex-1">
           <textarea
+            ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -46,28 +54,26 @@ export function ChatInput({
             placeholder={placeholder}
             rows={1}
             className={cn(
-              "w-full resize-none rounded-full border border-gray-300 px-4 py-3 pr-12",
-              "focus:outline-none focus:ring-2 focus:ring-[#06c755] focus:border-transparent",
-              "disabled:bg-gray-100 disabled:cursor-not-allowed",
-              "placeholder:text-gray-400 text-sm",
-              "max-h-32 overflow-y-auto"
+              "w-full resize-none rounded-2xl bg-surface-alt px-4 py-3",
+              "text-sm text-foreground placeholder:text-muted-light",
+              "border border-border",
+              "focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "transition-colors duration-150"
             )}
-            style={{
-              minHeight: "48px",
-              height: "auto",
-            }}
+            style={{ minHeight: "48px" }}
           />
         </div>
+
         <button
           type="submit"
-          disabled={disabled || !message.trim()}
+          disabled={!canSend}
           className={cn(
             "flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center",
             "transition-all duration-200",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            message.trim() && !disabled
-              ? "bg-[#06c755] hover:bg-[#05b04d] text-white shadow-md hover:shadow-lg"
-              : "bg-gray-200 text-gray-400"
+            canSend
+              ? "bg-accent text-white hover:bg-accent-dark active:scale-95 shadow-md"
+              : "bg-border text-muted-light cursor-not-allowed"
           )}
         >
           <svg
@@ -75,17 +81,16 @@ export function ChatInput({
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            strokeWidth={2}
           >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
             />
           </svg>
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }
-

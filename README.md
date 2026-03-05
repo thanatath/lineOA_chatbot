@@ -10,6 +10,7 @@ Web chat application with LINE Official Account integration for broadcasting mes
 - TypeScript with strict mode
 - Tailwind CSS v4
 - Next.js 16 App Router
+- Husky pre-commit hooks (lint + type check)
 
 ## Setup
 
@@ -79,11 +80,13 @@ tifa/
 ### API Endpoints
 
 **POST /api/broadcast**
+
 - Broadcasts message to all followers
 - Body: `{ message: "text" }`
 - Returns: `{ success: boolean, messageId?: string, error?: string }`
 
 **POST /api/webhook**
+
 - Receives LINE webhook events
 - Handles incoming messages
 - Signature verification included
@@ -95,3 +98,24 @@ tifa/
 - Tailwind CSS v4
 - @line/bot-sdk v10.6.0
 - Google Font Kanit
+- Husky + lint-staged + Prettier
+
+## Development
+
+### Pre-commit Hooks
+
+Husky automatically runs before each commit:
+
+1. **TypeScript Type Check** - Ensures no type errors
+2. **ESLint** - Lints and auto-fixes code
+3. **Prettier** - Formats code
+
+```bash
+# Runs automatically on commit
+git commit -m "your message"
+
+# Manual run
+pnpm type-check  # TypeScript check
+pnpm lint        # ESLint
+pnpm lint:fix    # ESLint with auto-fix
+```

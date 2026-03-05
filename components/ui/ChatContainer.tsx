@@ -8,20 +8,16 @@ interface ChatContainerProps {
 
 export function ChatContainer({ children }: ChatContainerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [children]);
 
   return (
-    <div
-      ref={containerRef}
-      className="flex-1 overflow-y-auto bg-gray-50 p-4 scroll-smooth"
-    >
-      {children}
+    <div ref={containerRef} className="flex-1 overflow-y-auto bg-surface-alt px-4 py-5">
+      <div className="space-y-4">{children}</div>
+      <div ref={bottomRef} />
     </div>
   );
 }
-

@@ -3,15 +3,15 @@ import { Kanit } from "next/font/google";
 import "./globals.css";
 
 const kanit = Kanit({
-  weight: "400",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  subsets: ["latin", "thai"],
   variable: "--font-kanit",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "LINE Chat - Web Chat Application",
-  description: "Connect and chat with LINE Official Account. Real-time messaging powered by LINE Bot SDK.",
+  title: "TIFA — LINE Broadcast",
+  description: "Broadcast messages to your LINE Official Account followers with ease.",
 };
 
 export default function RootLayout({

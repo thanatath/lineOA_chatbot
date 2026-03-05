@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Client, middleware, MiddlewareConfig, WebhookEvent, TextMessage, MessageEvent } from "@line/bot-sdk";
-
-const config: MiddlewareConfig = {
-  channelSecret: process.env.LINE_CHANNEL_SECRET || "",
-};
+import { Client, WebhookEvent, TextMessage, MessageEvent } from "@line/bot-sdk";
 
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",
@@ -15,10 +11,7 @@ export async function POST(req: NextRequest) {
     const signature = req.headers.get("x-line-signature");
 
     if (!signature) {
-      return NextResponse.json(
-        { error: "No signature" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "No signature" }, { status: 401 });
     }
 
     // Verify webhook signature
@@ -30,7 +23,7 @@ export async function POST(req: NextRequest) {
         if (event.type === "message" && event.message.type === "text") {
           const messageEvent = event as MessageEvent;
           const textMessage = messageEvent.message as TextMessage;
-          
+
           // Echo back the message
           await client.replyMessage(event.replyToken, {
             type: "text",
@@ -43,14 +36,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function GET() {
   return NextResponse.json({ message: "LINE Webhook endpoint" });
 }
-
