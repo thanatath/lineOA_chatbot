@@ -24,6 +24,11 @@ body {
   overflow: hidden;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b0b5bc transparent;
+}
+
 body {
   background: #e5e7eb;
   color: #1a1a2e;

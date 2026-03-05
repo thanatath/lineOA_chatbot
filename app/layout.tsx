@@ -10,8 +10,8 @@ const kanit = Kanit({
 });
 
 export const metadata: Metadata = {
-  title: "TIFA — LINE Broadcast",
-  description: "Broadcast messages to your LINE Official Account followers with ease.",
+  title: "TIFA — LINE Chat Admin",
+  description: "Admin dashboard for managing LINE user chats with AI auto-response.",
 };
 
 export default function RootLayout({

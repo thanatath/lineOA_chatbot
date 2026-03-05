@@ -10,6 +10,27 @@ export interface ChatMessage {
   status?: "sending" | "sent" | "error";
 }
 
+export interface ConversationMessage {
+  id: string;
+  text: string;
+  sender: "user" | "bot";
+  timestamp: number;
+}
+
+export interface UserChannel {
+  userId: string;
+  displayName: string;
+  pictureUrl?: string;
+  messages: ConversationMessage[];
+  lastMessageAt: number;
+  unreadCount: number;
+}
+
+export interface AdminSettings {
+  autoResponseEnabled: boolean;
+  systemPrompt: string;
+}
+
 export interface LineConfig {
   channelAccessToken: string;
   channelSecret: string;
@@ -31,3 +52,7 @@ export interface BroadcastResponse {
   sentCount?: number;
 }
 
+export interface SSEEvent {
+  type: "new_message" | "new_channel" | "settings_update";
+  data: unknown;
+}
