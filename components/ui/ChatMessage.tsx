@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { ChatMessage as ChatMessageType } from "@/types/line";
+import type { ChatMessage as ChatMessageType } from "@/models";
 
 interface ChatMessageProps {
   message: ChatMessageType;

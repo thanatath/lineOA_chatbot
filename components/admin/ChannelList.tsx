@@ -2,16 +2,7 @@
 
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-
-export interface ChannelSummary {
-  userId: string;
-  displayName: string;
-  pictureUrl?: string;
-  lastMessage: string;
-  lastMessageAt: number;
-  unreadCount: number;
-  messageCount: number;
-}
+import type { ChannelSummary } from "@/models";
 
 interface ChannelListProps {
   channels: ChannelSummary[];

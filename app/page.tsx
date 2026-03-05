@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ChannelList, type ChannelSummary } from "@/components/admin/ChannelList";
+import { ChannelList } from "@/components/admin/ChannelList";
 import { ChatPanel } from "@/components/admin/ChatPanel";
 import { BroadcastPanel } from "@/components/admin/BroadcastPanel";
 import { SettingsPanel } from "@/components/admin/SettingsPanel";
 import { useSSE } from "@/hooks/useSSE";
 import { cn } from "@/lib/utils";
-import type { AdminSettings, ConversationMessage } from "@/types/line";
+import type { AdminSettings, ConversationMessage, ChannelSummary } from "@/models";
 
 export default function AdminDashboard() {
   const [channels, setChannels] = useState<ChannelSummary[]>([]);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import type { AdminSettings } from "@/types/line";
+import type { AdminSettings } from "@/models";
 
 interface SettingsPanelProps {
   settings: AdminSettings;

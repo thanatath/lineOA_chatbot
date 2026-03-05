@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
-import type { AdminSettings } from "@/types/line";
+import type { AdminSettings } from "@/models";
 
 export async function GET() {
   return NextResponse.json(store.getSettings());

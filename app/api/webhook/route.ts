@@ -2,7 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import { Client, WebhookEvent, TextMessage, MessageEvent } from "@line/bot-sdk";
 import { store } from "@/lib/store";
 import { generateLLMResponse } from "@/lib/llm";
-import type { ConversationMessage } from "@/types/line";
+import type { ConversationMessage } from "@/models";
 
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",

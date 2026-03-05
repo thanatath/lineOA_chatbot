@@ -1,22 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-interface SSEHandlers {
-  onNewMessage?: (data: {
-    userId: string;
-    message: { id: string; text: string; sender: string; timestamp: number };
-  }) => void;
-  onNewChannel?: (data: {
-    userId: string;
-    displayName: string;
-    pictureUrl?: string;
-    lastMessageAt: number;
-    unreadCount: number;
-    lastMessage: string;
-  }) => void;
-  onSettingsUpdate?: (data: { autoResponseEnabled: boolean; systemPrompt: string }) => void;
-}
+import type { SSEHandlers } from "@/models";
 
 export function useSSE(handlers: SSEHandlers) {
   const handlersRef = useRef(handlers);

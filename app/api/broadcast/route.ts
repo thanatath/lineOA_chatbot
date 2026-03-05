@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client } from "@line/bot-sdk";
-import type { BroadcastRequest, BroadcastResponse } from "@/types/line";
+import type { BroadcastRequest, BroadcastResponse } from "@/models";
 
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",

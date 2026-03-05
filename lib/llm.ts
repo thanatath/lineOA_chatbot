@@ -1,4 +1,4 @@
-import type { ConversationMessage } from "@/types/line";
+import type { ConversationMessage } from "@/models";
 import { store } from "./store";
 
 export async function generateLLMResponse(

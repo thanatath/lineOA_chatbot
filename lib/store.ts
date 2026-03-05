@@ -1,4 +1,4 @@
-import type { UserChannel, ConversationMessage, AdminSettings } from "@/types/line";
+import type { UserChannel, ConversationMessage, AdminSettings } from "@/models";
 
 const DEFAULT_SYSTEM_PROMPT =
   "คุณคือ TIFA AI เพื่อนช่วยคุยสำหรับผู้ใช้งานและคอยตอบคำถามแก้เหงาเชิงสร้างสรรค์";

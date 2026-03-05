@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Client } from "@line/bot-sdk";
 import { store } from "@/lib/store";
-import type { ConversationMessage } from "@/types/line";
+import type { ConversationMessage } from "@/models";
 
 const client = new Client({
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",

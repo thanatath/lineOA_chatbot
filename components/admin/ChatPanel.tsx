@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatInput } from "@/components/ui/ChatInput";
-import type { ConversationMessage } from "@/types/line";
+import type { ConversationMessage } from "@/models";
 
 interface ChatPanelProps {
   userId: string;

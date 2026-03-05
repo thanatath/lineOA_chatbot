@@ -3,14 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ChatInput } from "@/components/ui/ChatInput";
-
-interface BroadcastLog {
-  id: string;
-  text: string;
-  status: "sending" | "sent" | "error";
-  timestamp: number;
-  error?: string;
-}
+import type { BroadcastLog } from "@/models";
 
 export function BroadcastPanel() {
   const [logs, setLogs] = useState<BroadcastLog[]>([]);
